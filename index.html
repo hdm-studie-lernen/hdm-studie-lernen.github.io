@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biolumineszenz – Lernmaterial</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #F5F8F9;
+    --surface: #FFFFFF;
+    --ink: #17272E;
+    --muted: #56676E;
+    --line: #D5DEE2;
+    --accent: #0A7480;
+    --accent-soft: #E3F3F4;
+    --deep: #0D2533;
+    --deep-2: #12384A;
+    --deep-ink: #D9EEF1;
+    --deep-muted: #8FB3BD;
+    --glow: #4BE3DC;
+    --warm: #F2C94C;
+    --head: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
+    --body: "Source Serif 4", Georgia, "Times New Roman", serif;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0A1A23; --surface: #0F2430; --ink: #E2EEF1; --muted: #9DB3BB;
+      --line: #23404D; --accent: #5ED8D6; --accent-soft: #123845;
+      --deep: #061520; --deep-2: #0C2A38;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0A1A23; --surface: #0F2430; --ink: #E2EEF1; --muted: #9DB3BB;
+    --line: #23404D; --accent: #5ED8D6; --accent-soft: #123845;
+    --deep: #061520; --deep-2: #0C2A38;
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--body); font-size: 1.125rem; line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .nav, .btn, .meta, .tag, figcaption, .key-label {
+    font-family: var(--head);
+  }
+  a { color: var(--accent); }
+  :focus-visible { outline: 3px solid var(--glow); outline-offset: 3px; border-radius: 4px; }
+
+  /* Hero: Meeresleuchten */
+  .hero {
+    position: relative; overflow: hidden;
+    background: radial-gradient(120% 140% at 70% 120%, var(--deep-2) 0%, var(--deep) 60%);
+    color: var(--deep-ink);
+    padding: clamp(48px, 9vw, 104px) 32px clamp(40px, 7vw, 80px);
+  }
+  .hero-inner { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; }
+  .hero h1 {
+    font-size: clamp(2.6rem, 6vw, 4.6rem); line-height: 0.98; font-weight: 600;
+    letter-spacing: -0.01em; margin: 0 0 18px; max-width: 12ch;
+  }
+  .hero p { margin: 0; max-width: 46ch; color: var(--deep-muted); font-size: 1.15rem; }
+  .meta { margin-top: 28px; font-size: 1.05rem; color: var(--deep-ink); }
+  .plankton { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .plankton circle { fill: var(--glow); opacity: 0; animation: blink 2.6s ease-out forwards; }
+  @keyframes blink {
+    0% { opacity: 0; } 25% { opacity: var(--o, .8); } 100% { opacity: calc(var(--o, .8) * .45); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plankton circle { animation: none; opacity: calc(var(--o, .8) * .45); }
+  }
+
+  /* Layout */
+  .layout {
+    max-width: 1100px; margin: 0 auto; padding: 48px 32px 96px;
+    display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 56px;
+  }
+  .nav { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); align-self: start; }
+  .nav p { margin: 0 0 12px; color: var(--muted); font-size: 1rem; }
+  .nav ol { list-style: none; margin: 0; padding: 0; counter-reset: k; }
+  .nav li { counter-increment: k; }
+  .nav a {
+    display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: baseline;
+    padding: 9px 10px; margin-left: -10px; border-radius: 6px;
+    color: var(--muted); text-decoration: none; font-size: 1.12rem; line-height: 1.25;
+  }
+  .nav a::before { content: counter(k); font-weight: 600; color: var(--muted); }
+  .nav a:hover { background: var(--accent-soft); color: var(--ink); }
+  .nav a[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+  .nav a[aria-current="step"]::before { color: var(--accent); }
+  .nav a.done::before { color: var(--accent); }
+  .progress { height: 4px; background: var(--line); border-radius: 2px; margin: 18px 0 0; overflow: hidden; }
+  .progress span { display: block; height: 100%; background: var(--accent); width: 20%; transition: width .3s ease; }
+
+  main { min-width: 0; }
+  .chapter { max-width: 68ch; }
+  .chapter[hidden] { display: none; }
+  .chapter h2 {
+    font-size: clamp(2rem, 3.6vw, 2.7rem); line-height: 1.05; font-weight: 600;
+    margin: 0 0 10px; letter-spacing: -0.005em;
+  }
+  .lead { font-size: 1.25rem; color: var(--muted); margin: 0 0 32px; }
+  .chapter h3 { font-size: 1.45rem; font-weight: 600; margin: 40px 0 8px; line-height: 1.2; }
+  .chapter h4 { font-family: var(--head); font-size: 1.2rem; font-weight: 600; margin: 24px 0 4px; }
+  .chapter p { margin: 0 0 16px; }
+  .formula {
+    font-family: var(--head); font-size: 1.2rem; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 8px 0 20px;
+    overflow-x: auto; white-space: nowrap;
+  }
+
+  .key {
+    border-left: 4px solid var(--glow); background: var(--surface);
+    padding: 16px 20px; margin: 32px 0 8px; border-radius: 0 8px 8px 0;
+  }
+  .key-label { font-weight: 600; font-size: 1.05rem; color: var(--accent); margin-bottom: 4px; }
+  .key p { margin: 0; }
+
+  figure { margin: 28px 0 32px; }
+  .diagram {
+    background: var(--deep); border-radius: 10px; padding: 8px; overflow-x: auto;
+  }
+  .diagram svg { display: block; width: 100%; min-width: 520px; height: auto; }
+  figcaption { color: var(--muted); font-size: 1rem; margin-top: 8px; }
+  svg text { font-family: var(--head); }
+
+  /* Funktionen-Übersicht */
+  .fun-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 8px 0 8px; }
+  .fun {
+    display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: center;
+    padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--ink); text-decoration: none;
+  }
+  .fun:hover { border-color: var(--accent); }
+  .fun svg { width: 52px; height: 52px; border-radius: 8px; background: var(--deep); }
+  .fun strong { font-family: var(--head); font-size: 1.25rem; font-weight: 600; display: block; line-height: 1.1; }
+  .fun span { font-size: 0.98rem; color: var(--muted); line-height: 1.35; }
+
+  /* Beispiele */
+  .examples { margin: 4px 0 0; }
+  .example {
+    display: grid; grid-template-columns: 14px 1fr; gap: 18px;
+    padding: 22px 0; border-top: 1px solid var(--line);
+  }
+  .example:first-of-type { border-top: 0; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; margin-top: 10px; background: var(--c, var(--glow)); box-shadow: 0 0 14px var(--c, var(--glow)); }
+  .example h4 { margin: 0 0 2px; font-size: 1.4rem; }
+  .tag { display: inline-block; font-size: 0.95rem; color: var(--accent); margin-bottom: 8px; }
+  .example p:last-child { margin-bottom: 0; }
+
+  .pager { max-width: 68ch; display: flex; justify-content: space-between; gap: 16px; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .btn {
+    font-size: 1.15rem; font-weight: 600; border-radius: 8px; padding: 12px 22px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); margin-left: auto; }
+  .btn[hidden] { display: none; }
+  .done-note {
+    font-family: var(--head); font-size: 1.2rem; background: var(--accent-soft);
+    padding: 16px 20px; border-radius: 8px; margin-top: 32px;
+  }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; gap: 24px; padding-top: 24px; }
+    .nav { position: static; }
+    .nav ol { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; }
+    .nav a { white-space: nowrap; margin-left: 0; }
+    .fun-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="plankton" aria-hidden="true" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMid slice">
+    <g id="dots"></g>
+  </svg>
+  <div class="hero-inner">
+    <h1>Wenn Lebewesen leuchten</h1>
+    <p>Biolumineszenz: wie Tiere, Pilze und Bakterien selbst Licht erzeugen, wo sie vorkommt und wozu das Leuchten dient.</p>
+    <div class="meta">5 Kapitel, etwa 10 Minuten</div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="nav" aria-label="Kapitel">
+    <p id="step-label">Kapitel 1 von 5</p>
+    <ol>
+      <li><a href="#kapitel-1">Was ist Biolumineszenz?</a></li>
+      <li><a href="#kapitel-2">Wie entsteht das Licht?</a></li>
+      <li><a href="#kapitel-3">Wo kommt sie vor?</a></li>
+      <li><a href="#kapitel-4">Wozu leuchten Lebewesen?</a></li>
+      <li><a href="#kapitel-5">Beispiele</a></li>
+    </ol>
+    <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+  </nav>
+
+  <main>
+    <!-- Kapitel 1 -->
+    <section class="chapter" id="kapitel-1" aria-labelledby="h1-1">
+      <h2 id="h1-1">Was ist Biolumineszenz?</h2>
+      <p class="lead">Lebewesen, die ihr Licht selbst herstellen.</p>
+
+      <p>Biolumineszenz bezeichnet die Fähigkeit von Lebewesen, selbst Licht zu erzeugen und abzugeben. Im Gegensatz zu anderen Leuchtphänomenen erzeugt der Organismus das Licht selbst durch einen chemischen Prozess.</p>
+      <p>Damit unterscheidet sich Biolumineszenz von Fluoreszenz und Phosphoreszenz. Fluoreszierende Stoffe erzeugen kein eigenes Licht, sondern nehmen Licht auf und geben es wieder ab, sodass sie nur leuchten, solange sie beleuchtet werden.</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 640 270" role="img" aria-labelledby="d1t">
+            <title id="d1t">Vergleich: Biolumineszenz erzeugt Licht selbst, Fluoreszenz gibt nur Licht von außen wieder ab</title>
+            <defs>
+              <radialGradient id="g1"><stop offset="0" stop-color="#4BE3DC" stop-opacity=".75"/><stop offset="1" stop-color="#4BE3DC" stop-opacity="0"/></radialGradient>
+              <radialGradient id="g2"><stop offset="0" stop-color="#7CF07A" stop-opacity=".7"/><stop offset="1" stop-color="#7CF07A" stop-opacity="0"/></radialGradient>
+              <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#F2C94C"/></marker>
+              <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7CF07A"/></marker>
+            </defs>
+            <line x1="320" y1="24" x2="320" y2="246" stroke="#24485A" stroke-width="1.5"/>
+            <text x="28" y="40" fill="#D9EEF1" font-size="22" font-weight="600">Biolumineszenz</text>
+            <circle cx="160" cy="132" r="78" fill="url(#g1)"/>
+            <path d="M112,138 Q160,62 208,138 Q184,128 160,138 Q136,128 112,138 Z" fill="#4BE3DC" opacity=".9"/>
+            <path d="M126,140 q-6,20 4,38 q8,16 0,32 M146,140 q6,22 -2,40 q-6,16 2,30 M168,140 q-6,22 4,40 q6,14 -2,30 M190,140 q6,20 -4,38 q-6,16 2,32" stroke="#4BE3DC" stroke-width="2.5" fill="none" opacity=".75"/>
+            <text x="160" y="112" fill="#0D2533" font-size="13" font-weight="600" text-anchor="middle">Reaktion</text>
+            <text x="160" y="244" fill="#D9EEF1" font-size="17" text-anchor="middle">erzeugt Licht selbst</text>
+
+            <text x="348" y="40" fill="#D9EEF1" font-size="22" font-weight="600">Fluoreszenz</text>
+            <circle cx="378" cy="108" r="16" fill="#F2C94C"/>
+            <path d="M372,124 h12 v10 h-12 z" fill="#8FB3BD"/>
+            <line x1="398" y1="112" x2="478" y2="132" stroke="#F2C94C" stroke-width="3" marker-end="url(#ar)"/>
+            <text x="404" y="98" fill="#8FB3BD" font-size="14">Licht von außen</text>
+            <circle cx="520" cy="142" r="54" fill="url(#g2)"/>
+            <rect x="494" y="122" width="52" height="40" rx="10" fill="#7CF07A" opacity=".9"/>
+            <line x1="552" y1="122" x2="590" y2="96" stroke="#7CF07A" stroke-width="2.5" marker-end="url(#ag)"/>
+            <line x1="556" y1="148" x2="600" y2="150" stroke="#7CF07A" stroke-width="2.5" marker-end="url(#ag)"/>
+            <line x1="550" y1="168" x2="586" y2="196" stroke="#7CF07A" stroke-width="2.5" marker-end="url(#ag)"/>
+            <text x="480" y="232" fill="#D9EEF1" font-size="17" text-anchor="middle">leuchtet nur, solange</text>
+            <text x="480" y="252" fill="#D9EEF1" font-size="17" text-anchor="middle">Licht von außen kommt</text>
+          </svg>
+        </div>
+        <figcaption>Der entscheidende Unterschied: Woher kommt die Energie für das Licht?</figcaption>
+      </figure>
+
+      <p>Biolumineszenz kommt bei sehr unterschiedlichen Lebewesen vor, von Bakterien über Quallen und Insekten bis hin zu Fischen. Die meisten davon leben im Meer, wo Biolumineszenz in weiten Teilen die wichtigste Lichtquelle ist. An Land sind Glühwürmchen die bekanntesten Beispiele, daneben leuchten unter anderem auch Pilze.</p>
+      <p>Biolumineszenz ist in der Evolution mindestens 40-mal unabhängig voneinander entstanden, was ihre Bedeutung für das Überleben verdeutlicht.</p>
+
+      <div class="key">
+        <div class="key-label">Kurz gesagt</div>
+        <p>Biolumineszente Lebewesen erzeugen ihr Licht selbst. Fluoreszierende Stoffe geben nur Licht wieder ab, das sie vorher aufgenommen haben.</p>
+      </div>
+    </section>
+
+    <!-- Kapitel 2 -->
+    <section class="chapter" id="kapitel-2" aria-labelledby="h1-2" hidden>
+      <h2 id="h1-2">Wie entsteht das Licht?</h2>
+      <p class="lead">Eine chemische Reaktion, bei der Energie als Licht frei wird.</p>
+
+      <h3>Das Grundprinzip</h3>
+      <p>Biolumineszenz entsteht durch eine chemische Reaktion in lebenden Zellen, bei der Energie in Form von sichtbarem Licht freigesetzt wird. Das Enzym Luciferase steuert dabei die Reaktion.</p>
+
+      <h3>Die beteiligten Stoffe</h3>
+      <p>Für die Lichtproduktion werden vor allem zwei Stoffe benötigt: Luciferin und Luciferase. Luciferin ist der Stoff, der bei der Reaktion mit Sauerstoff Licht erzeugt. Luciferase ist das Enzym, das diese Reaktion ermöglicht. Je nach Organismus können sich die beteiligten Stoffe unterscheiden. Bei Leuchtkäfern werden zusätzlich ATP und Magnesiumionen benötigt.</p>
+
+      <h3>Der chemische Ablauf: primäre Biolumineszenz</h3>
+      <p>Bei der primären Biolumineszenz wird das Licht direkt durch eine chemische Reaktion im Organismus erzeugt. Dabei spielen Luciferin und Luciferase eine wichtige Rolle.</p>
+      <p>Am Beispiel des Leuchtkäfers läuft die Reaktion folgendermaßen ab: Luciferin reagiert mit Sauerstoff und wird dabei durch das Enzym Luciferase oxidiert, häufig mit Cofaktoren wie ATP. Dabei wird Energie freigesetzt, CO₂ abgespalten und das Ausgangsmolekül in Oxyluciferin umgewandelt. Kurzzeitig befindet sich dieses in einem energiereichen Zustand. Beim Zurückfallen in seinen ursprünglichen Zustand wird die überschüssige Energie als Licht abgegeben.</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 640 300" role="img" aria-labelledby="d2t">
+            <title id="d2t">Ablauf der Reaktion: Luciferin und Sauerstoff werden durch Luciferase zu energiereichem Oxyluciferin, das beim Zurückfallen Licht abgibt</title>
+            <defs>
+              <marker id="aw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D9EEF1"/></marker>
+              <radialGradient id="g3"><stop offset="0" stop-color="#4BE3DC" stop-opacity=".6"/><stop offset="1" stop-color="#4BE3DC" stop-opacity="0"/></radialGradient>
+            </defs>
+            <line x1="34" y1="270" x2="34" y2="34" stroke="#8FB3BD" stroke-width="1.5" marker-end="url(#aw)"/>
+            <text x="22" y="160" fill="#8FB3BD" font-size="14" transform="rotate(-90 22 160)" text-anchor="middle">Energie</text>
+
+            <rect x="56" y="186" width="156" height="66" rx="8" fill="#12384A" stroke="#8FB3BD"/>
+            <text x="134" y="214" fill="#D9EEF1" font-size="18" font-weight="600" text-anchor="middle">Luciferin + O₂</text>
+            <text x="134" y="236" fill="#8FB3BD" font-size="14" text-anchor="middle">beim Leuchtkäfer + ATP</text>
+
+            <path d="M212,206 C250,206 250,92 288,92" stroke="#D9EEF1" stroke-width="2" fill="none" marker-end="url(#aw)"/>
+            <rect x="214" y="132" width="78" height="26" rx="13" fill="#F2C94C"/>
+            <text x="253" y="150" fill="#0D2533" font-size="14" font-weight="600" text-anchor="middle">Luciferase</text>
+
+            <rect x="292" y="56" width="168" height="66" rx="8" fill="#12384A" stroke="#4BE3DC"/>
+            <text x="376" y="84" fill="#D9EEF1" font-size="18" font-weight="600" text-anchor="middle">Oxyluciferin</text>
+            <text x="376" y="106" fill="#4BE3DC" font-size="14" text-anchor="middle">kurz energiereich</text>
+
+            <path d="M444,122 C470,160 470,190 490,206" stroke="#D9EEF1" stroke-width="2" fill="none" marker-end="url(#aw)"/>
+            <circle cx="540" cy="150" r="56" fill="url(#g3)"/>
+            <path d="M480,150 q8,-10 16,0 t16,0 t16,0 t16,0" stroke="#4BE3DC" stroke-width="3" fill="none"/>
+            <text x="560" y="140" fill="#4BE3DC" font-size="18" font-weight="600">Licht</text>
+
+            <rect x="456" y="206" width="168" height="66" rx="8" fill="#12384A" stroke="#8FB3BD"/>
+            <text x="540" y="234" fill="#D9EEF1" font-size="18" font-weight="600" text-anchor="middle">Oxyluciferin</text>
+            <text x="540" y="256" fill="#8FB3BD" font-size="14" text-anchor="middle">+ CO₂, Grundzustand</text>
+          </svg>
+        </div>
+        <figcaption>Die Energie, die beim Zurückfallen frei wird, ist das Licht.</figcaption>
+      </figure>
+
+      <p>Vereinfacht lässt sich die Reaktion so darstellen:</p>
+      <div class="formula">Luciferin + O₂ + ATP → Oxyluciferin + CO₂ + AMP + PPi + Licht</div>
+
+      <h3>Sekundäre Biolumineszenz</h3>
+      <p>Bei der sekundären Biolumineszenz wird das Licht nicht vom Organismus selbst, sondern von symbiotischen Bakterien erzeugt. Diese leben in speziellen Leuchtorganen ihrer Wirte, beispielsweise in Hauttaschen oder anderen Körperpartien, und werden von ihnen mit Nahrung und Sauerstoff versorgt.</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 640 240" role="img" aria-labelledby="d3t">
+            <title id="d3t">Primär: das Tier erzeugt das Licht selbst. Sekundär: Bakterien im Leuchtorgan erzeugen das Licht und werden vom Tier versorgt</title>
+            <defs>
+              <radialGradient id="g4"><stop offset="0" stop-color="#4BE3DC" stop-opacity=".85"/><stop offset="1" stop-color="#4BE3DC" stop-opacity="0"/></radialGradient>
+              <marker id="ay" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#F2C94C"/></marker>
+            </defs>
+            <line x1="320" y1="20" x2="320" y2="220" stroke="#24485A" stroke-width="1.5"/>
+            <text x="28" y="40" fill="#D9EEF1" font-size="22" font-weight="600">Primär</text>
+            <ellipse cx="150" cy="128" rx="78" ry="34" fill="#2C5A6E"/>
+            <path d="M226,128 L276,98 L268,128 L276,158 Z" fill="#2C5A6E"/>
+            <circle cx="98" cy="118" r="5" fill="#D9EEF1"/>
+            <circle cx="150" cy="140" r="34" fill="url(#g4)"/>
+            <circle cx="150" cy="140" r="8" fill="#4BE3DC"/>
+            <text x="150" y="204" fill="#D9EEF1" font-size="17" text-anchor="middle">eigene Reaktion im Körper</text>
+
+            <text x="348" y="40" fill="#D9EEF1" font-size="22" font-weight="600">Sekundär</text>
+            <ellipse cx="470" cy="128" rx="78" ry="34" fill="#2C5A6E"/>
+            <path d="M546,128 L596,98 L588,128 L596,158 Z" fill="#2C5A6E"/>
+            <circle cx="418" cy="118" r="5" fill="#D9EEF1"/>
+            <circle cx="470" cy="140" r="38" fill="url(#g4)"/>
+            <ellipse cx="470" cy="142" rx="24" ry="14" fill="#0D2533" stroke="#4BE3DC" stroke-width="1.5"/>
+            <circle cx="460" cy="138" r="3" fill="#4BE3DC"/><circle cx="470" cy="146" r="3" fill="#4BE3DC"/>
+            <circle cx="480" cy="137" r="3" fill="#4BE3DC"/><circle cx="476" cy="148" r="3" fill="#4BE3DC"/>
+            <circle cx="463" cy="148" r="3" fill="#4BE3DC"/>
+            <path d="M528,74 C506,84 490,106 482,124" stroke="#F2C94C" stroke-width="2" fill="none" marker-end="url(#ay)"/>
+            <text x="540" y="66" fill="#F2C94C" font-size="14" text-anchor="middle">Nahrung + Sauerstoff</text>
+            <text x="470" y="204" fill="#D9EEF1" font-size="17" text-anchor="middle">Bakterien im Leuchtorgan</text>
+          </svg>
+        </div>
+        <figcaption>Bei der sekundären Biolumineszenz profitieren beide Seiten: Licht für den Wirt, Versorgung für die Bakterien.</figcaption>
+      </figure>
+
+      <div class="key">
+        <div class="key-label">Kurz gesagt</div>
+        <p>Luciferin reagiert mit Sauerstoff, das Enzym Luciferase steuert die Reaktion, und die frei werdende Energie wird als Licht abgegeben. Primär heißt: Das Lebewesen erzeugt das Licht selbst. Sekundär heißt: Symbiotische Bakterien erzeugen es.</p>
+      </div>
+    </section>
+
+    <!-- Kapitel 3 -->
+    <section class="chapter" id="kapitel-3" aria-labelledby="h1-3" hidden>
+      <h2 id="h1-3">Wo kommt Biolumineszenz vor?</h2>
+      <p class="lead">Vor allem im Meer, aber auch an Land.</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 640 330" role="img" aria-labelledby="d4t">
+            <title id="d4t">Wassersäule: Mit zunehmender Tiefe nimmt das Sonnenlicht ab, und immer mehr Lebewesen leuchten selbst</title>
+            <defs>
+              <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#2E7E93"/><stop offset=".35" stop-color="#174A5E"/><stop offset="1" stop-color="#05121B"/>
+              </linearGradient>
+              <linearGradient id="ray" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#F2C94C" stop-opacity=".55"/><stop offset=".7" stop-color="#F2C94C" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <rect x="8" y="30" width="624" height="292" rx="6" fill="url(#sea)"/>
+            <circle cx="62" cy="30" r="18" fill="#F2C94C"/>
+            <path d="M40,40 L20,322 L140,322 L84,40 Z" fill="url(#ray)"/>
+            <path d="M120,40 L150,322 L250,322 L160,40 Z" fill="url(#ray)" opacity=".7"/>
+            <g fill="#4BE3DC">
+              <circle cx="300" cy="96" r="2.5" opacity=".7"/><circle cx="330" cy="104" r="2" opacity=".6"/>
+              <circle cx="280" cy="180" r="2.5"/><circle cx="350" cy="170" r="3"/><circle cx="240" cy="210" r="2.5"/><circle cx="310" cy="200" r="2"/>
+              <circle cx="180" cy="270" r="3"/><circle cx="220" cy="250" r="2.5"/><circle cx="260" cy="290" r="3.5"/><circle cx="300" cy="260" r="3"/>
+              <circle cx="340" cy="296" r="2.5"/><circle cx="380" cy="270" r="3"/><circle cx="120" cy="296" r="2.5"/><circle cx="90" cy="262" r="2"/>
+              <circle cx="400" cy="230" r="2.5"/><circle cx="150" cy="232" r="2"/><circle cx="360" cy="240" r="2"/>
+            </g>
+            <line x1="430" y1="30" x2="430" y2="322" stroke="#D9EEF1" stroke-opacity=".25" stroke-dasharray="3 5"/>
+            <text x="448" y="72" fill="#D9EEF1" font-size="17" font-weight="600">Küste und Lagunen</text>
+            <text x="448" y="92" fill="#B9D6DD" font-size="14">Meeresleuchten durch</text>
+            <text x="448" y="110" fill="#B9D6DD" font-size="14">einzellige Organismen</text>
+            <text x="448" y="250" fill="#D9EEF1" font-size="17" font-weight="600">Tiefsee</text>
+            <text x="448" y="270" fill="#B9D6DD" font-size="14">kaum Sonnenlicht,</text>
+            <text x="448" y="288" fill="#B9D6DD" font-size="14">ein Großteil der Bewohner</text>
+            <text x="448" y="306" fill="#B9D6DD" font-size="14">leuchtet selbst</text>
+          </svg>
+        </div>
+        <figcaption>Je tiefer, desto dunkler und desto wichtiger wird selbst erzeugtes Licht.</figcaption>
+      </figure>
+
+      <h3>Der Ozean</h3>
+      <h4>Die Tiefsee</h4>
+      <p>Die Tiefsee ist einer der wichtigsten Lebensräume für biolumineszente Lebewesen. Ein Großteil der Tiefseebewohner kann selbst Licht erzeugen. Da Sonnenlicht in großen Wassertiefen kaum oder gar nicht vordringt, ist die Biolumineszenz eine wichtige Anpassung an die herrschenden Lebensbedingungen.</p>
+      <h4>Küstengewässer und Lagunen</h4>
+      <p>In Küstengewässern und Lagunen kann ebenfalls Biolumineszenz beobachtet werden. Das sogenannte Meeresleuchten entsteht häufig durch einzellige Organismen. Dieses Naturphänomen lässt sich an verschiedenen Orten der Welt beobachten. Bekannt ist die Mosquito Bay auf Puerto Rico. Auch an bestimmten Küsten der Malediven kann das Meeresleuchten auftreten.</p>
+      <h4>Süßwasser</h4>
+      <p>Im Gegensatz zu den Meeren ist Biolumineszenz in klassischen Süßwasserlebensräumen wie Seen und Flüssen deutlich seltener. Natürlich biolumineszente Fische oder Krebse sind dort nicht bekannt. Zu den wenigen Ausnahmen zählen einige Insektenlarven.</p>
+
+      <h3>An Land</h3>
+      <p>Leuchtende Organismen findet man unter anderem auch in Wäldern, feuchten Gebieten und tropischen Regionen. Ein wichtiger Lebensraum sind feuchte Wälder, da sie eine hohe Luftfeuchtigkeit, schattige Bereiche und abgestorbenes Pflanzenmaterial bieten. Auch auf Wiesen, an Waldrändern und in Gebüschen kann Biolumineszenz beobachtet werden.</p>
+
+      <div class="key">
+        <div class="key-label">Kurz gesagt</div>
+        <p>Am häufigsten ist Biolumineszenz im Meer, besonders in der dunklen Tiefsee. Im Süßwasser ist sie selten, an Land kommt sie vor allem in feuchten Wäldern vor.</p>
+      </div>
+    </section>
+
+    <!-- Kapitel 4 -->
+    <section class="chapter" id="kapitel-4" aria-labelledby="h1-4" hidden>
+      <h2 id="h1-4">Wozu leuchten Lebewesen?</h2>
+      <p class="lead">Die biologischen Funktionen lassen sich in vier Hauptbereiche gliedern.</p>
+
+      <div class="fun-grid">
+        <a class="fun" href="#f-verteidigung">
+          <svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="20" cy="26" r="10" fill="#4BE3DC" opacity=".35"/><circle cx="26" cy="22" r="9" fill="#4BE3DC" opacity=".45"/><circle cx="31" cy="30" r="8" fill="#4BE3DC" opacity=".55"/></svg>
+          <div><strong>Verteidigung</strong><span>Verwirren und Alarm schlagen</span></div>
+        </a>
+        <a class="fun" href="#f-angriff">
+          <svg viewBox="0 0 52 52" aria-hidden="true"><path d="M14,40 Q14,14 34,12" stroke="#8FB3BD" stroke-width="2" fill="none"/><circle cx="36" cy="14" r="5" fill="#4BE3DC"/><circle cx="36" cy="14" r="10" fill="#4BE3DC" opacity=".25"/></svg>
+          <div><strong>Angriff</strong><span>Nachtsicht, Köder und Schock</span></div>
+        </a>
+        <a class="fun" href="#f-partner">
+          <svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="16" cy="26" r="4" fill="#F2C94C"/><circle cx="36" cy="26" r="4" fill="#F2C94C"/><path d="M22,20 q4,6 0,12 M30,20 q-4,6 0,12" stroke="#F2C94C" stroke-width="1.5" fill="none" opacity=".7"/></svg>
+          <div><strong>Partnersuche</strong><span>Lichtsignale als Sprache</span></div>
+        </a>
+        <a class="fun" href="#f-tarnung">
+          <svg viewBox="0 0 52 52" aria-hidden="true"><rect x="0" y="0" width="52" height="22" fill="#2E7E93"/><ellipse cx="26" cy="22" rx="14" ry="6" fill="#2E7E93" stroke="#4BE3DC" stroke-dasharray="2 2"/></svg>
+          <div><strong>Tarnung</strong><span>Mit Gegenlicht unsichtbar werden</span></div>
+        </a>
+      </div>
+
+      <h3 id="f-verteidigung">Verteidigung: Verwirrung und Alarm</h3>
+      <p>Biolumineszenz kann Beutetieren helfen, Fressfeinden zu entkommen. Manche Meerestiere geben bei Gefahr leuchtenden Schleim oder eine leuchtende Wolke ins Wasser ab. Der Angreifer wird dadurch abgelenkt und kann das fliehende Tier aus den Augen verlieren. Auch abgetrennte leuchtende Körperteile können als Ablenkung dienen: Der Fressfeind verfolgt das leuchtende Teil, während das eigentliche Tier entkommt.</p>
+      <p>Bei der Alarmfunktion, auch „Einbrecheralarm“ genannt, wird dagegen die Aufmerksamkeit eines weiteren Räubers genutzt. Wird ein kleines Leuchttier angegriffen, sendet es Lichtblitze aus. Diese können größere Fressfeinde anlocken, die ihrerseits den Angreifer attackieren. Das angegriffene Tier gewinnt dadurch möglicherweise Zeit zur Flucht.</p>
+
+      <h3 id="f-angriff">Angriff: Nachtsicht, Köder und Schock</h3>
+      <p>Biolumineszenz wird nicht nur zur Verteidigung, sondern auch bei der Jagd eingesetzt. Einige Tiefseefische besitzen Leuchtorgane unter den Augen. Sie können rotes Licht erzeugen, das viele andere Tiefseebewohner nicht wahrnehmen. So können die Fische ihre Umgebung und mögliche Beute beleuchten, ohne diese durch das Licht zu warnen, ähnlich wie mit einem für andere unsichtbaren Scheinwerfer.</p>
+      <p>Eine weitere Strategie ist der Einsatz leuchtender Köder, die an einem umgebildeten Flossenstrahl der Leuchttiere sitzen. Mit ihnen können Beutetiere angelockt und in die Nähe des Räubers geführt werden. Sobald die Beute nahe genug ist, kann der Räuber zuschnappen.</p>
+      <p>Manche Meerestiere setzen kurze, sehr helle Lichtblitze ein. Diese können Beutetiere erschrecken, blenden oder für einen kurzen Moment desorientieren. Der Jäger kann diesen Augenblick nutzen, um seine Beute leichter zu fangen.</p>
+
+      <h3 id="f-partner">Partnersuche: Balztanz und Kommunikation</h3>
+      <p>In der Dunkelheit dient Licht auch als eine Art Sprache zwischen Tieren derselben Art. Bei der Partnersuche können artspezifische Lichtsignale dabei helfen, geeignete Paarungspartner zu erkennen und anzulocken.</p>
+      <p>Biolumineszenz kann außerdem dazu dienen, das Verhalten innerhalb einer Gruppe abzustimmen und gemeinsame Bewegungen zu koordinieren. Entscheidend ist dabei, dass die Signale von anderen Tieren derselben Art wahrgenommen und interpretiert werden können.</p>
+
+      <h3 id="f-tarnung">Tarnung: Gegenlicht</h3>
+      <p>Manche Tiere nutzen Biolumineszenz, um sich vor Fressfeinden zu tarnen. Einige Fische besitzen deshalb Leuchtorgane an ihrer Körperunterseite. Sie erzeugen ein Licht, das in Helligkeit und Farbe dem von oben einfallenden Restlicht möglichst ähnlich ist. Dadurch wird der eigene Schatten abgeschwächt und ihre Silhouette ist für Räuber von unten schwerer zu erkennen. Diese Form der Tarnung heißt Gegenbeleuchtung oder Counterillumination.</p>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 640 250" role="img" aria-labelledby="d5t">
+            <title id="d5t">Blick von unten: Ein Fisch ohne Gegenlicht zeichnet sich als dunkler Umriss ab, ein Fisch mit Leuchtorganen an der Unterseite verschwindet fast</title>
+            <defs>
+              <linearGradient id="up" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#7FC6D3"/><stop offset=".7" stop-color="#2C6F84"/><stop offset="1" stop-color="#123A4C"/>
+              </linearGradient>
+            </defs>
+            <rect x="8" y="8" width="624" height="200" rx="6" fill="url(#up)"/>
+            <text x="320" y="34" fill="#0D2533" font-size="15" font-weight="600" text-anchor="middle">Restlicht von der Oberfläche</text>
+            <ellipse cx="170" cy="96" rx="80" ry="26" fill="#0B1F2A"/>
+            <path d="M246,96 L292,72 L284,96 L292,120 Z" fill="#0B1F2A"/>
+            <text x="170" y="160" fill="#D9EEF1" font-size="17" font-weight="600" text-anchor="middle">ohne Gegenlicht</text>
+            <text x="170" y="180" fill="#D9EEF1" font-size="14" text-anchor="middle">dunkler Umriss, gut sichtbar</text>
+            <ellipse cx="470" cy="96" rx="80" ry="26" fill="#6FB8C6" stroke="#9EE4EA" stroke-width="1" stroke-dasharray="3 4"/>
+            <path d="M546,96 L592,72 L584,96 L592,120 Z" fill="#6FB8C6" stroke="#9EE4EA" stroke-width="1" stroke-dasharray="3 4"/>
+            <g fill="#E8FBFC"><circle cx="420" cy="112" r="2.5"/><circle cx="440" cy="116" r="2.5"/><circle cx="460" cy="118" r="2.5"/><circle cx="480" cy="118" r="2.5"/><circle cx="500" cy="116" r="2.5"/><circle cx="520" cy="112" r="2.5"/></g>
+            <text x="470" y="160" fill="#D9EEF1" font-size="17" font-weight="600" text-anchor="middle">mit Gegenlicht</text>
+            <text x="470" y="180" fill="#D9EEF1" font-size="14" text-anchor="middle">Umriss verschwindet fast</text>
+            <path d="M300,232 q20,-14 40,0 q-20,14 -40,0 z" fill="none" stroke="#D9EEF1" stroke-width="2"/>
+            <circle cx="320" cy="232" r="5" fill="#D9EEF1"/>
+            <text x="352" y="237" fill="#8FB3BD" font-size="14">Blick des Räubers von unten</text>
+          </svg>
+        </div>
+        <figcaption>Gegenbeleuchtung: Die Leuchtorgane an der Unterseite gleichen den Fisch an das Licht von oben an.</figcaption>
+      </figure>
+
+      <div class="key">
+        <div class="key-label">Kurz gesagt</div>
+        <p>Licht hilft beim Überleben auf vier Arten: Fressfeinde verwirren oder Hilfe herbeirufen, Beute finden und anlocken, Partner erkennen und sich durch Gegenlicht unsichtbar machen.</p>
+      </div>
+    </section>
+
+    <!-- Kapitel 5 -->
+    <section class="chapter" id="kapitel-5" aria-labelledby="h1-5" hidden>
+      <h2 id="h1-5">Beispiele</h2>
+      <p class="lead">Fünf Lebewesen, die zeigen, wie vielfältig Biolumineszenz eingesetzt wird.</p>
+
+      <h3>An Land</h3>
+      <div class="examples">
+        <article class="example" style="--c:#F2C94C">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <h4>Glühwürmchen</h4>
+            <span class="tag">Partnersuche und Schutz</span>
+            <p>Glühwürmchen, auch Leuchtkäfer genannt, gehören zu den bekanntesten Beispielen für Biolumineszenz an Land. Sie besitzen spezielle Leuchtorgane am Hinterleib, in denen durch eine chemische Reaktion Licht erzeugt wird. Je nach Art erscheint dieses Licht gelblich-grün bis orange (Lewis &amp; Cratsley, 2008).</p>
+            <p>Viele Glühwürmchenarten nutzen ihre Leuchtsignale vor allem zur Kommunikation und Partnersuche. Bei einigen Arten senden fliegende Männchen charakteristische Lichtblitze aus, auf die Weibchen mit eigenen Signalen antworten. Diese artspezifischen Lichtmuster ermöglichen es den Tieren, geeignete Paarungspartner derselben Art zu erkennen. Beim in Mitteleuropa verbreiteten Großen Glühwürmchen ist es hingegen das flugunfähige Weibchen, das durch sein anhaltendes Leuchten fliegende Männchen anlockt.</p>
+            <p>Neben der Partnersuche kann das Leuchten auch eine Schutzfunktion erfüllen. Besonders bei Glühwürmchenlarven wird es als mögliches Warnsignal gegenüber Fressfeinden betrachtet. Es kann darauf hinweisen, dass die Tiere chemische Abwehrstoffe besitzen und deshalb ungenießbar sind.</p>
+          </div>
+        </article>
+        <article class="example" style="--c:#7CF07A">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <h4>Leuchtpilz <i>Neonothopanus gardneri</i></h4>
+            <span class="tag">Anlocken von Insekten</span>
+            <p>Auch einige Pilzarten können selbst Licht erzeugen. Ein Beispiel ist der Pilz <i>Neonothopanus gardneri</i>, der in den tropischen Wäldern Brasiliens vorkommt. Durch chemische Reaktionen erzeugt er grünes Licht mit einer Wellenlänge von etwa 530 Nanometern. Dabei können sowohl der Fruchtkörper als auch das Myzel, also das fadenförmige Geflecht des Pilzes, leuchten.</p>
+            <p>Eine Besonderheit dieses Pilzes ist, dass seine Lichtproduktion durch eine innere biologische Uhr gesteuert wird. Dieser sogenannte circadiane Rhythmus beträgt ungefähr 22 Stunden und bleibt auch bei unterschiedlichen Temperaturen weitgehend konstant. Dadurch verändert sich die Lichtintensität im Tagesverlauf, wobei der Pilz besonders nachts stark leuchtet. Forschende vermuten, dass diese zeitliche Regulierung eine effizientere Energienutzung ermöglicht, da das schwache Licht bei Tageslicht kaum wahrnehmbar ist.</p>
+            <p>Untersuchungen zeigen, dass das grüne Licht verschiedene Insekten anzieht. Diese könnten zur Verbreitung der Pilzsporen beitragen, indem sie die Sporen an ihrer Körperoberfläche oder in ihrem Verdauungstrakt transportieren. Besonders in dichten tropischen Wäldern könnte dies einen Vorteil für die Ausbreitung des Pilzes darstellen. Ob und in welchem Umfang die angelockten Insekten tatsächlich zur Sporenverbreitung beitragen, ist jedoch noch nicht abschließend geklärt.</p>
+          </div>
+        </article>
+      </div>
+
+      <h3>Unter Wasser</h3>
+      <div class="examples">
+        <article class="example">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <h4>Tiefsee-Anglerfisch</h4>
+            <span class="tag">Angriff mit Köder, sekundäre Biolumineszenz</span>
+            <p>Ein bekanntes Beispiel für Biolumineszenz in der Tiefsee ist der Anglerfisch. Die Weibchen vieler Tiefsee-Anglerfischarten besitzen eine Art Angelrute am Kopf, an deren Ende sich ein Leuchtorgan, die sogenannte Esca, befindet. Das Licht wird dabei nicht vom Fisch selbst erzeugt, sondern von Bakterien, die in diesem Organ leben. Die leuchtende Angel dient dazu, Beutetiere anzulocken. Die Bakterien profitieren im Gegenzug von einem geschützten Lebensraum. Die Männchen dieser Anglerfischarten besitzen hingegen keine entsprechende Leuchtangel.</p>
+          </div>
+        </article>
+        <article class="example" style="--c:#4FA8FF">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <h4>Dinoflagellaten</h4>
+            <span class="tag">Verteidigung, Meeresleuchten</span>
+            <p>Dinoflagellaten sind einzellige Organismen, die hauptsächlich im Meer vorkommen und zum Plankton gehören. Einige Arten können durch chemische Reaktionen selbst Licht erzeugen. Besonders eindrucksvoll lässt sich dieses Phänomen an Küsten beobachten, wenn das Meer bei Dunkelheit stellenweise blau aufleuchtet.</p>
+            <p>Das Leuchten wird meist durch mechanische Reize ausgelöst, beispielsweise durch brechende Wellen oder vorbeischwimmende Tiere. Während einzelne Dinoflagellaten nur kurze Lichtblitze erzeugen, können große Ansammlungen dieser Organismen ganze Bereiche der Wasseroberfläche zum Leuchten bringen.</p>
+            <p>Das Leuchten dient vermutlich vor allem der Verteidigung gegen Fressfeinde. Das plötzliche Aufblitzen kann kleinere Angreifer irritieren und ihre Nahrungsaufnahme unterbrechen. Gleichzeitig könnten die Lichtsignale größere Raubtiere auf die Angreifer aufmerksam machen, sodass diese selbst zur Beute werden.</p>
+          </div>
+        </article>
+        <article class="example" style="--c:#7CF07A">
+          <span class="dot" aria-hidden="true"></span>
+          <div>
+            <h4>Leuchtqualle <i>Aequorea victoria</i></h4>
+            <span class="tag">Licht durch Calcium, Farbe durch GFP</span>
+            <p>Die Leuchtqualle <i>Aequorea victoria</i> lebt in den Küstengewässern des nordöstlichen Pazifiks, insbesondere an der Westküste Nordamerikas. Bei mechanischer Reizung kann sie grünliches Licht erzeugen.</p>
+            <p>Dafür nutzt sie das Protein Aequorin, das bei der Bindung von Calciumionen eine chemische Lichtreaktion auslöst. Zunächst entsteht dabei blaues Licht. Die Energie wird anschließend auf das grün fluoreszierende Protein GFP übertragen, wodurch grünes Licht entsteht. Für die Lichtproduktion benötigt sie außerdem den Stoff Coelenterazin, den sie vermutlich über ihre Nahrung aufnimmt.</p>
+          </div>
+        </article>
+      </div>
+
+      <p class="done-note">Du bist am Ende des Lernmaterials. Du kannst einzelne Kapitel noch einmal ansehen oder zur Umfrage zurückkehren.</p>
+    </section>
+
+    <div class="pager">
+      <button class="btn" id="prev" type="button">Zurück</button>
+      <button class="btn primary" id="next" type="button">Weiter zu Kapitel 2</button>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Hintergrund: Lichtpunkte im Hero, einmal beim Laden
+  (function () {
+    var g = document.getElementById('dots');
+    var seed = 7;
+    function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+    var html = '';
+    for (var i = 0; i < 70; i++) {
+      var x = 420 + rnd() * 780, y = rnd() * 420, r = 1 + rnd() * 3.2, o = (0.35 + rnd() * 0.65).toFixed(2);
+      html += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r.toFixed(1) + '" style="--o:' + o + ';animation-delay:' + (rnd() * 1.6).toFixed(2) + 's"/>';
+    }
+    g.innerHTML = html;
+  })();
+
+  // Kapitelnavigation über #kapitel-1 … #kapitel-5
+  var chapters = Array.prototype.slice.call(document.querySelectorAll('.chapter'));
+  var links = Array.prototype.slice.call(document.querySelectorAll('.nav a'));
+  var prev = document.getElementById('prev'), next = document.getElementById('next');
+  var bar = document.getElementById('bar'), label = document.getElementById('step-label');
+  var seen = {};
+  var titles = ['Was ist Biolumineszenz?', 'Wie entsteht das Licht?', 'Wo kommt sie vor?', 'Wozu leuchten Lebewesen?', 'Beispiele'];
+
+  function indexFromHash() {
+    var m = /^#kapitel-([1-5])$/.exec(location.hash);
+    if (m) return +m[1] - 1;
+    var target = location.hash && document.getElementById(location.hash.slice(1));
+    if (target) { var ch = target.closest('.chapter'); if (ch) return chapters.indexOf(ch); }
+    return 0;
+  }
+  function show(i, scrollTarget) {
+    seen[i] = true;
+    chapters.forEach(function (c, k) { c.hidden = k !== i; });
+    links.forEach(function (a, k) {
+      if (k === i) a.setAttribute('aria-current', 'step'); else a.removeAttribute('aria-current');
+      a.classList.toggle('done', !!seen[k] && k !== i);
+    });
+    bar.style.width = ((i + 1) / chapters.length * 100) + '%';
+    label.textContent = 'Kapitel ' + (i + 1) + ' von ' + chapters.length;
+    prev.hidden = i === 0;
+    next.hidden = i === chapters.length - 1;
+    if (i < chapters.length - 1) next.textContent = 'Weiter zu Kapitel ' + (i + 2);
+    if (scrollTarget) scrollTarget.scrollIntoView({ block: 'start' });
+  }
+  function go(i) { location.hash = 'kapitel-' + (i + 1); }
+  function sync() {
+    var i = indexFromHash();
+    var t = location.hash && document.getElementById(location.hash.slice(1));
+    var anchor = t && !t.classList.contains('chapter') ? t : document.querySelector('.layout');
+    show(i, location.hash ? anchor : null);
+  }
+  prev.addEventListener('click', function () { go(Math.max(0, indexFromHash() - 1)); });
+  next.addEventListener('click', function () { go(Math.min(chapters.length - 1, indexFromHash() + 1)); });
+  window.addEventListener('hashchange', sync);
+  sync();
+</script>
+</body>
+</html>
